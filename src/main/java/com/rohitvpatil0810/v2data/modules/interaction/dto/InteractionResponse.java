@@ -10,5 +10,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class InteractionResponse {
-    private String message;
+    private String fileName;
+    private String notes;
 }
