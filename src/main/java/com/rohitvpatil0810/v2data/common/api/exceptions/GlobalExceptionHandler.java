@@ -26,6 +26,7 @@ public class GlobalExceptionHandler {
         return new ValidationErrorResponse(errorMap);
     }
 
+
     @ExceptionHandler(Exception.class)
     public ApiResponse handleGenericException(Exception ex) {
         if (ex instanceof ApiException) {
