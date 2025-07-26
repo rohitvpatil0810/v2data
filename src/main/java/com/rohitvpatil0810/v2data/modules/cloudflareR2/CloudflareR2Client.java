@@ -1,6 +1,7 @@
 package com.rohitvpatil0810.v2data.modules.cloudflareR2;
 
 import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.core.sync.RequestBody;
@@ -11,6 +12,8 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectResponse;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.net.URI;
 
 @Component
@@ -31,6 +34,7 @@ public class CloudflareR2Client {
 
         S3Configuration serviceConfiguration = S3Configuration.builder()
                 .pathStyleAccessEnabled(true)
+                .chunkedEncodingEnabled(false) // ❗ Important for large files
                 .build();
 
         URI endpoint = URI.create(String.format("https://%s.r2.cloudflarestorage.com", config.accountId()));
@@ -43,17 +47,27 @@ public class CloudflareR2Client {
                 .build();
     }
 
-    public String uploadFile(String bucketName, File file) {
+    public String uploadFile(String bucketName, File file) throws IOException {
         PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                 .bucket(bucketName)
                 .key(file.getName())
                 .build();
 
-        System.out.println(putObjectRequest.toString());
-        RequestBody requestBody = RequestBody.fromFile(file);
+        RequestBody requestBody = RequestBody.fromInputStream(new FileInputStream(file), file.length());
+
         PutObjectResponse response = this.s3Client.putObject(putObjectRequest, requestBody);
+        return response.toString();
+    }
 
+    public String uploadFile(String bucketName, MultipartFile file) throws IOException {
+        PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+                .bucket(bucketName)
+                .key(file.getOriginalFilename())
+                .build();
 
+        RequestBody requestBody = RequestBody.fromBytes(file.getBytes());
+
+        PutObjectResponse response = this.s3Client.putObject(putObjectRequest, requestBody);
         return response.toString();
     }
 }

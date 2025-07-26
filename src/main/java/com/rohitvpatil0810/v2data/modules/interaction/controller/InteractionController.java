@@ -46,10 +46,12 @@ public class InteractionController {
             file = new File(uploadDir + cleanFileName);
             audioFile.transferTo(file);
 
-            String response = cloudflareR2Client.uploadFile("v2data", file);
-            System.out.println("Cloudflare Response: " + response);
+            cloudflareR2Client.uploadFile("v2data", file);
 
-            InteractionResponse res = InteractionResponse.builder().fileName(fileName).notes(metaData.getNotes() + " ----- response: " + response).build();
+            InteractionResponse res = InteractionResponse.builder()
+                    .fileName(fileName)
+                    .notes(metaData.getNotes())
+                    .build();
 
             return new SuccessResponse<>("Success", res);
         } finally {
