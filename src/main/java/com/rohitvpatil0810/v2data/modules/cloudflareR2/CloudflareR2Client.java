@@ -8,22 +8,47 @@ import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.S3Configuration;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectResponse;
+import software.amazon.awssdk.services.s3.presigner.S3Presigner;
+import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URI;
+import java.net.URL;
+import java.time.Duration;
 
 @Component
 public class CloudflareR2Client {
     private final S3Client s3Client;
+    private final S3Presigner presigner;
 
 
     public CloudflareR2Client(CloudflareR2ConfigProperties config) {
         System.out.println(config.toString());
         this.s3Client = buildS3Client(config);
+        this.presigner = buildS3Presigner(config);
+    }
+
+    private static S3Presigner buildS3Presigner(CloudflareR2ConfigProperties config) {
+        AwsBasicCredentials credentials = AwsBasicCredentials.create(
+                config.accessKey(),
+                config.secretKey()
+        );
+
+        URI endpoint = URI.create(String.format("https://%s.r2.cloudflarestorage.com", config.accountId()));
+
+        return S3Presigner.builder()
+                .endpointOverride(endpoint)
+                .credentialsProvider(StaticCredentialsProvider.create(credentials))
+                .region(Region.of("auto"))
+                .serviceConfiguration(S3Configuration.builder()
+                        .pathStyleAccessEnabled(true)
+                        .build())
+                .build();
     }
 
     private static S3Client buildS3Client(CloudflareR2ConfigProperties config) {
@@ -69,5 +94,21 @@ public class CloudflareR2Client {
 
         PutObjectResponse response = this.s3Client.putObject(putObjectRequest, requestBody);
         return response.toString();
+    }
+
+    public String generateSignedUrl(String bucketName, String key) {
+        GetObjectRequest getObjectRequest = GetObjectRequest.builder()
+                .bucket(bucketName)
+                .key(key)
+                .build();
+
+        GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()
+                .signatureDuration(Duration.ofMinutes(60))
+                .getObjectRequest(getObjectRequest)
+                .build();
+
+        URL presignedURL = presigner.presignGetObject(presignRequest).url();
+
+        return presignedURL.toString();
     }
 }

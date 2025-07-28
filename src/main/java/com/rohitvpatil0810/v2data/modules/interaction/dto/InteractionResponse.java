@@ -10,6 +10,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class InteractionResponse {
-    private String fileName;
+    private String fileURL;
     private String notes;
 }

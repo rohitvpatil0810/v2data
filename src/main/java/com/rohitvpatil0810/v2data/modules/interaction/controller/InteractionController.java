@@ -48,11 +48,13 @@ public class InteractionController {
 
             cloudflareR2Client.uploadFile("v2data", file);
 
+            String fileURL = cloudflareR2Client.generateSignedUrl("v2data", file.getName());
+
             InteractionResponse res = InteractionResponse.builder()
-                    .fileName(fileName)
+                    .fileURL(fileURL)
                     .notes(metaData.getNotes())
                     .build();
-
+            
             return new SuccessResponse<>("Success", res);
         } finally {
             file.delete();
