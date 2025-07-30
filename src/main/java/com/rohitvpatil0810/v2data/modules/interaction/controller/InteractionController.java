@@ -22,13 +22,10 @@ public class InteractionController {
 
     @PostMapping(value = "/interact", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     ApiResponse<InteractionResponse> echoMessage(@RequestPart("audio") MultipartFile audioFile, @RequestPart("meta") InteractionRequest metaData) throws IOException {
-        String fileURL = interactionService.generateNotes(audioFile);
+        InteractionResponse interactionResponse = interactionService.generateNotes(audioFile);
 
-        InteractionResponse res = InteractionResponse.builder()
-                .fileURL(fileURL)
-                .notes(metaData.getNotes())
-                .build();
+        interactionResponse.setNotes(metaData.getNotes());
 
-        return new SuccessResponse<>("Success", res);
+        return new SuccessResponse<>("Success", interactionResponse);
     }
 }

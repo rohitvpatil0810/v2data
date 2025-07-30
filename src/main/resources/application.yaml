@@ -7,7 +7,9 @@ spring:
       max-file-size: 100MB
       max-request-size: 100MB
   config:
-    import: optional:cloudflare-secrets.yaml
+    import:
+      - optional:cloudflare-secrets.yaml
+      - optional:v2data-transcriber-secrets.yaml
 
 server:
   port: 8080
