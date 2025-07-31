@@ -28,7 +28,6 @@ public class CloudflareR2Client {
 
 
     public CloudflareR2Client(CloudflareR2ConfigProperties config) {
-        System.out.println(config.toString());
         this.s3Client = buildS3Client(config);
         this.presigner = buildS3Presigner(config);
     }
