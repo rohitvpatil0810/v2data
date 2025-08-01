@@ -1,0 +1,27 @@
+volumes:
+  postgres_data:
+
+services:
+  db:
+    image: postgres
+    container_name: v2data-db
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-admin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
+      POSTGRES_DB: ${POSTGRES_DB:-v2data-db}
+      POSTGRES_SCHEMA: ${POSTGRES_SCHEMA:-v2data}
+    volumes:
+      - postgres_data:/data/postgres
+    ports:
+      - 5432:5432
+
+  pgAdmin:
+    image: dpage/pgadmin4
+    container_name: v2data-pgAdmin
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-admin@local.com}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin123}
+    ports:
+      - 5050:80

@@ -1,0 +1,6 @@
+CREATE TABLE files (
+    id SERIAL PRIMARY KEY,
+    original_filename TEXT NOT NULL,
+    storage_key TEXT NOT NULL UNIQUE,
+    created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT NOW() NOT NULL
+);
