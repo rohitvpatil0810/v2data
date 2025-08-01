@@ -1,6 +1,8 @@
 package com.rohitvpatil0810.v2data.modules.fileUpload.service;
 
 import com.rohitvpatil0810.v2data.modules.cloudflareR2.CloudflareR2Client;
+import com.rohitvpatil0810.v2data.modules.fileUpload.entity.StoredFile;
+import com.rohitvpatil0810.v2data.modules.fileUpload.repository.StoredFileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -15,6 +17,9 @@ import java.util.UUID;
 public class FileUploadService {
     @Autowired
     CloudflareR2Client cloudflareR2Client;
+
+    @Autowired
+    private StoredFileRepository storedFileRepository;
 
     public String uploadFile(MultipartFile uploadFile) throws IOException {
         File file = null;
@@ -40,6 +45,14 @@ public class FileUploadService {
             cloudflareR2Client.uploadFile("v2data", file);
 
             String fileURL = cloudflareR2Client.generateSignedUrl("v2data", file.getName());
+
+            StoredFile fileRecord = StoredFile.builder()
+                    .originalFilename(uploadFile.getOriginalFilename())
+                    .storageKey(cleanFileName)
+                    .build();
+
+            storedFileRepository.save(fileRecord);
+            
             return fileURL;
         } finally {
             file.delete();
