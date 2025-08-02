@@ -22,10 +22,8 @@ public class InteractionController {
 
     @PostMapping(value = "/interact", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     ApiResponse<InteractionResponse> echoMessage(@RequestPart("audio") MultipartFile audioFile, @RequestPart("meta") InteractionRequest metaData) throws IOException {
-        InteractionResponse interactionResponse = interactionService.generateNotes(audioFile);
-
-        interactionResponse.setNotes(metaData.getNotes());
-
+        InteractionResponse interactionResponse = interactionService.generateNotes(audioFile, metaData.getNotes());
+        
         return new SuccessResponse<>("Success", interactionResponse);
     }
 }

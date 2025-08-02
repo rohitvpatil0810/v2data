@@ -11,6 +11,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class InteractionResponse {
+    private Long fileId;
+    private Long interactionId;
     private String fileURL;
     private String notes;
     private V2DataTranscriberResponseBody v2DataTranscriberResponse;

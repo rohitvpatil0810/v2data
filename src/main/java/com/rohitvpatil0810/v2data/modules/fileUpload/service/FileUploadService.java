@@ -1,7 +1,9 @@
 package com.rohitvpatil0810.v2data.modules.fileUpload.service;
 
 import com.rohitvpatil0810.v2data.modules.cloudflareR2.CloudflareR2Client;
+import com.rohitvpatil0810.v2data.modules.fileUpload.dto.FileUploadResponse;
 import com.rohitvpatil0810.v2data.modules.fileUpload.entity.StoredFile;
+import com.rohitvpatil0810.v2data.modules.fileUpload.mapper.StoredFileMapper;
 import com.rohitvpatil0810.v2data.modules.fileUpload.repository.StoredFileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,7 +23,10 @@ public class FileUploadService {
     @Autowired
     private StoredFileRepository storedFileRepository;
 
-    public String uploadFile(MultipartFile uploadFile) throws IOException {
+    @Autowired
+    private StoredFileMapper storedFileMapper;
+
+    public FileUploadResponse uploadFile(MultipartFile uploadFile) throws IOException {
         File file = null;
         try {
             String uploadDir = System.getProperty("user.dir") + "/uploads/";
@@ -52,8 +57,12 @@ public class FileUploadService {
                     .build();
 
             storedFileRepository.save(fileRecord);
-            
-            return fileURL;
+
+            FileUploadResponse fileUploadResponse = storedFileMapper.toFileUploadResponse(fileRecord);
+
+            fileUploadResponse.setSignedURL(fileURL);
+
+            return fileUploadResponse;
         } finally {
             file.delete();
         }
