@@ -1,0 +1,9 @@
+CREATE TABLE users (
+    id BIGSERIAL PRIMARY KEY,
+    name TEXT NOT NULL,
+    email TEXT NOT NULL UNIQUE,
+    hashed_password TEXT NOT NULL,
+    is_email_verified BOOLEAN NOT NULL DEFAULT FALSE,
+    last_logout_timestamp TIMESTAMP WITHOUT TIME ZONE NULL,
+    created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT NOW() NOT NULL
+);
