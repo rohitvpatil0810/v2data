@@ -41,6 +41,7 @@ public class GlobalExceptionHandler {
         if (ex instanceof ApiException) {
             return ApiException.handle((ApiException) ex);
         }
+        log.error(String.valueOf(ex.fillInStackTrace()));
         return new InternalErrorResponse();
     }
 
