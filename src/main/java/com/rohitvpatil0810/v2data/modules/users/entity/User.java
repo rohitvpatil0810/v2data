@@ -30,7 +30,7 @@ public class User {
     @Column(nullable = false)
     private String hashedPassword;
 
-    @Column(nullable = false)
+    @Column
     private Boolean isEmailVerified;
 
     @Column(nullable = true)
@@ -38,4 +38,11 @@ public class User {
 
     @Column(insertable = false, updatable = false)
     private LocalDateTime createdAt;
+
+    @PrePersist
+    public void onCreate() {
+        if (isEmailVerified == null) {
+            isEmailVerified = false;
+        }
+    }
 }
