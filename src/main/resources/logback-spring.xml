@@ -42,4 +42,6 @@
         <appender-ref ref="CONSOLE"/>
         <appender-ref ref="JSON_FILE"/>
     </root>
+
+    <logger name="com.rohitvpatil0810.v2data" level="DEBUG"/>
 </configuration>

@@ -3,7 +3,6 @@ package com.rohitvpatil0810.v2data.modules.auth.controller;
 import com.rohitvpatil0810.v2data.common.api.responses.ApiResponse;
 import com.rohitvpatil0810.v2data.common.api.responses.SuccessResponse;
 import com.rohitvpatil0810.v2data.modules.auth.dto.RegistrationRequest;
-import com.rohitvpatil0810.v2data.modules.auth.dto.RegistrationResponse;
 import com.rohitvpatil0810.v2data.modules.auth.service.AuthService;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,9 +21,9 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    ApiResponse<RegistrationResponse> register(@RequestBody @Valid RegistrationRequest request) {
-        RegistrationResponse response = authService.registerUser(request);
+    ApiResponse register(@RequestBody @Valid RegistrationRequest request) {
+        authService.registerUser(request);
 
-        return new SuccessResponse<>("Registration Success", response);
+        return new SuccessResponse<>("If your email is not registered, you will receive a verification email shortly.");
     }
 }
