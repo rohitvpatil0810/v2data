@@ -38,7 +38,7 @@ public class VerificationToken {
     @Column
     private Boolean used;
 
-    @Column(nullable = false, updatable = false)
+    @Column(nullable = false, insertable = false, updatable = false)
     private LocalDateTime createdAt;
 
     @PrePersist
