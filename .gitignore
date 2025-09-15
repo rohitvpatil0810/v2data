@@ -36,6 +36,7 @@ uploads
 
 cloudflare-secrets.yaml
 v2data-transcriber-secrets.yaml
+spring-mail-secrets.yaml
 
 #logs
 /logs/
