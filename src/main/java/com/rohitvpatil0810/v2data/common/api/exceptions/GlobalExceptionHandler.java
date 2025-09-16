@@ -1,12 +1,10 @@
 package com.rohitvpatil0810.v2data.common.api.exceptions;
 
-import com.rohitvpatil0810.v2data.common.api.responses.ApiResponse;
-import com.rohitvpatil0810.v2data.common.api.responses.InternalErrorResponse;
-import com.rohitvpatil0810.v2data.common.api.responses.NotFoundResponse;
-import com.rohitvpatil0810.v2data.common.api.responses.ValidationErrorResponse;
+import com.rohitvpatil0810.v2data.common.api.responses.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
@@ -43,6 +41,11 @@ public class GlobalExceptionHandler {
         }
         log.error(String.valueOf(ex.fillInStackTrace()));
         return new InternalErrorResponse();
+    }
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ApiResponse handleMissingParamsException(MissingServletRequestParameterException ex) {
+        return new BadRequestResponse<>(ex.getMessage());
     }
 
     @ExceptionHandler(RuntimeException.class)
