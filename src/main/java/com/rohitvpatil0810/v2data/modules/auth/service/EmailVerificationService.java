@@ -1,17 +1,20 @@
 package com.rohitvpatil0810.v2data.modules.auth.service;
 
+import com.rohitvpatil0810.v2data.common.api.exceptions.BadRequestException;
 import com.rohitvpatil0810.v2data.common.email.EmailService;
 import com.rohitvpatil0810.v2data.common.security.TokenGenerator;
 import com.rohitvpatil0810.v2data.common.security.TokenHasher;
 import com.rohitvpatil0810.v2data.modules.auth.entity.VerificationToken;
 import com.rohitvpatil0810.v2data.modules.auth.repository.VerificationTokenRepository;
 import com.rohitvpatil0810.v2data.modules.users.entity.User;
+import com.rohitvpatil0810.v2data.modules.users.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.NoSuchElementException;
 
 @Slf4j
 @Service
@@ -20,6 +23,7 @@ public class EmailVerificationService {
 
     final private VerificationTokenRepository verificationTokenRepository;
     final private EmailService emailService;
+    final private UserRepository userRepository;
 
     @Value("${app.base-url}")
     private String baseUrl;
@@ -48,5 +52,28 @@ public class EmailVerificationService {
         verificationTokenRepository.save(verificationToken);
 
         return rawToken;
+    }
+
+    public void verifyToken(String rawToken) throws BadRequestException {
+        try {
+            String hashToken = TokenHasher.hashToken(rawToken);
+
+            VerificationToken verificationToken = verificationTokenRepository.findByHashedToken(hashToken).orElseThrow();
+
+            log.debug("used value = {}", verificationToken.getUsed());
+
+            if (verificationToken.getExpiryTime().isBefore(LocalDateTime.now()) || verificationToken.getUsed()) {
+                throw new BadRequestException("Email verification link expired");
+            }
+
+            User user = verificationToken.getUser();
+            user.setIsEmailVerified(true);
+            userRepository.save(user);
+
+            verificationToken.setUsed(true);
+            verificationTokenRepository.save(verificationToken);
+        } catch (NoSuchElementException e) {
+            throw new BadRequestException("Email verification failed");
+        }
     }
 }
