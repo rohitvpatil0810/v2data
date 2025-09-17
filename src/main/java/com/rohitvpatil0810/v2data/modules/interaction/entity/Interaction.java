@@ -5,7 +5,7 @@ import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Data;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Entity
 @Data
@@ -31,5 +31,5 @@ public class Interaction {
     private String generatedNotes;
 
     @Column(insertable = false, updatable = false)
-    private LocalDateTime createdAt;
+    private Instant createdAt;
 }

@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Data;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Entity
 @Table(name = "files")
@@ -23,5 +23,5 @@ public class StoredFile {
     private String storageKey;
 
     @Column(insertable = false, updatable = false)
-    private LocalDateTime createdAt;
+    private Instant createdAt;
 }

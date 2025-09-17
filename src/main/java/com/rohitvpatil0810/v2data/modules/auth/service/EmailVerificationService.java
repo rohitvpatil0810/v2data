@@ -13,7 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.NoSuchElementException;
 
 @Slf4j
@@ -25,13 +25,16 @@ public class EmailVerificationService {
     final private EmailService emailService;
     final private UserRepository userRepository;
 
+    // TODO: in future get this value from properties
+    private final long expirationTimeInSeconds = 15 * 60; // 15 minutes * 60 sec per minute
+
     @Value("${app.base-url}")
     private String baseUrl;
 
     public void sendVerificationEmail(User user) {
         String token = createTokenFromUser(user);
         log.debug("Token = {}", token);
-        String verificationLink = baseUrl + "/auth/verify?token=" + token;
+        String verificationLink = this.baseUrl + "/auth/verify?token=" + token;
         String subject = "Verify your email";
         String body = "<p>Click the link to verify your email:</p>" +
                 "<a href=\"" + verificationLink + "\">Verify Email</a>";
@@ -45,7 +48,6 @@ public class EmailVerificationService {
         VerificationToken verificationToken = VerificationToken.builder()
                 .user(user)
                 .hashedToken(hashedToken)
-                .expiryTime(LocalDateTime.now().plusMinutes(15))
                 .build();
 
         log.debug("Hashed Token = {}", hashedToken);
@@ -57,12 +59,9 @@ public class EmailVerificationService {
     public void verifyToken(String rawToken) throws BadRequestException {
         try {
             String hashToken = TokenHasher.hashToken(rawToken);
-
             VerificationToken verificationToken = verificationTokenRepository.findByHashedToken(hashToken).orElseThrow();
 
-            log.debug("used value = {}", verificationToken.getUsed());
-
-            if (verificationToken.getExpiryTime().isBefore(LocalDateTime.now()) || verificationToken.getUsed()) {
+            if (verificationToken.getCreatedAt().plusSeconds(expirationTimeInSeconds).isBefore(Instant.now()) || verificationToken.getUsed()) {
                 throw new BadRequestException("Email verification link expired");
             }
 

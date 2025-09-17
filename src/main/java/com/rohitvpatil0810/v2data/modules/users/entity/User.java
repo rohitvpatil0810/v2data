@@ -6,7 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Entity
 @Data
@@ -37,11 +37,8 @@ public class User {
     @Column
     private Boolean isEmailVerified;
 
-    @Column(nullable = true)
-    private LocalDateTime lastLogoutTimestamp;
-
     @Column(insertable = false, updatable = false)
-    private LocalDateTime createdAt;
+    private Instant createdAt;
 
     @PrePersist
     public void onCreate() {

@@ -7,7 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Entity
 @Data
@@ -33,13 +33,10 @@ public class VerificationToken {
     private User user;
 
     @Column
-    private LocalDateTime expiryTime;
-
-    @Column
     private Boolean used;
 
     @Column(nullable = false, insertable = false, updatable = false)
-    private LocalDateTime createdAt;
+    private Instant createdAt;
 
     @PrePersist
     public void onCreate() {
