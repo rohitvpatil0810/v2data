@@ -5,7 +5,9 @@ import com.rohitvpatil0810.v2data.modules.v2DataTranscriber.V2DataTranscriberCon
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.scheduling.annotation.EnableAsync;
 
+@EnableAsync
 @SpringBootApplication
 @EnableConfigurationProperties({CloudflareR2ConfigProperties.class, V2DataTranscriberConfigProperties.class})
 public class V2dataApplication {

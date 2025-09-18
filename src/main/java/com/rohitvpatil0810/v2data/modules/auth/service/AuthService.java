@@ -1,29 +1,27 @@
 package com.rohitvpatil0810.v2data.modules.auth.service;
 
 import com.rohitvpatil0810.v2data.modules.auth.dto.RegistrationRequest;
+import com.rohitvpatil0810.v2data.modules.auth.event.UserRegisteredEvent;
 import com.rohitvpatil0810.v2data.modules.users.entity.User;
 import com.rohitvpatil0810.v2data.modules.users.mapper.UserMapper;
 import com.rohitvpatil0810.v2data.modules.users.repository.UserRepository;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class AuthService {
 
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final EmailVerificationService emailVerificationService;
-
-    public AuthService(PasswordEncoder passwordEncoder, UserRepository userRepository, UserMapper userMapper, EmailVerificationService emailVerificationService) {
-        this.passwordEncoder = passwordEncoder;
-        this.userRepository = userRepository;
-        this.userMapper = userMapper;
-        this.emailVerificationService = emailVerificationService;
-    }
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public void registerUser(RegistrationRequest userData) {
@@ -39,7 +37,8 @@ public class AuthService {
 
         User savedUser = userRepository.save(user);
 
-        emailVerificationService.sendVerificationEmail(savedUser);
+        // Publish event after saving user
+        eventPublisher.publishEvent(new UserRegisteredEvent(savedUser.getId()));
     }
 
     private String hashPassword(String password) {
