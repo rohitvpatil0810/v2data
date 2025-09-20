@@ -2,6 +2,9 @@ package com.rohitvpatil0810.v2data.common.api.exceptions;
 
 import com.rohitvpatil0810.v2data.common.api.responses.*;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
@@ -32,6 +35,12 @@ public class GlobalExceptionHandler {
     public ApiResponse handleNotFoundException(NoResourceFoundException ex) {
         log.info("NOT FOUND - {} - {}", ex.getHttpMethod(), ex.getResourcePath());
         return new NotFoundResponse("Not Found : [" + ex.getHttpMethod() + "]" + ex.getResourcePath());
+    }
+
+    @ExceptionHandler({UsernameNotFoundException.class, BadCredentialsException.class, DisabledException.class})
+    public ApiResponse handleAuthFailureException(RuntimeException e) {
+        log.debug("Auth failure exception {}", String.valueOf(e));
+        return new AuthFailureResponse("Invalid Credentials");
     }
 
     @ExceptionHandler(Exception.class)

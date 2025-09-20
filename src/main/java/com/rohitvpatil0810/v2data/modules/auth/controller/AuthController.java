@@ -3,20 +3,25 @@ package com.rohitvpatil0810.v2data.modules.auth.controller;
 import com.rohitvpatil0810.v2data.common.api.exceptions.BadRequestException;
 import com.rohitvpatil0810.v2data.common.api.responses.ApiResponse;
 import com.rohitvpatil0810.v2data.common.api.responses.SuccessResponse;
+import com.rohitvpatil0810.v2data.modules.auth.dto.LoginRequest;
+import com.rohitvpatil0810.v2data.modules.auth.dto.LoginResponse;
 import com.rohitvpatil0810.v2data.modules.auth.dto.RegistrationRequest;
 import com.rohitvpatil0810.v2data.modules.auth.service.AuthService;
 import com.rohitvpatil0810.v2data.modules.auth.service.EmailVerificationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 @RestController()
 @RequestMapping("/auth")
 @RequiredArgsConstructor
+@Slf4j
 public class AuthController {
 
     private final AuthService authService;
     private final EmailVerificationService emailVerificationService;
+
 
     @PostMapping("/register")
     ApiResponse register(@RequestBody @Valid RegistrationRequest request) {
@@ -30,5 +35,12 @@ public class AuthController {
         emailVerificationService.verifyToken(token);
 
         return new SuccessResponse<>("Email verified Successfully");
+    }
+
+    @PostMapping("/login")
+    ApiResponse<LoginResponse> login(@RequestBody @Valid LoginRequest loginRequest) {
+        LoginResponse loginResponse = authService.login(loginRequest);
+
+        return new SuccessResponse<LoginResponse>("login successful", loginResponse);
     }
 }

@@ -48,3 +48,8 @@ server:
 
 app:
   base-url: http://localhost:8080/api
+
+jwt:
+  secret:
+    access: ${ACCESS_TOKEN_SECRET:super-secret-access-ptJTegKdTXPlWaCwHlofVohmegOxOmkk}
+    refresh: ${REFRESH_TOKEN_SECRET:super-secret-refresh-uJrEEGcWukfvRJMWmVnnBVxmbAYygOtZ}
