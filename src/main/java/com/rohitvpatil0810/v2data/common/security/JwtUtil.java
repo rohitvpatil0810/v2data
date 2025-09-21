@@ -47,6 +47,16 @@ public class JwtUtil {
         }
     }
 
+    public Claims verifyAccessToken(String accessToken) throws TokenExpiredException, BadTokenException {
+        try {
+            return validateToken(accessToken, accessTokenSecret);
+        } catch (ExpiredJwtException ex) {
+            throw new TokenExpiredException("Access token expired.");
+        } catch (JwtException ex) {
+            throw new BadTokenException("Invalid access token");
+        }
+    }
+
     public String generateAccessToken(UserDetails userDetails) {
         return Jwts.builder()
                 .subject(userDetails.getUsername())
@@ -68,7 +78,6 @@ public class JwtUtil {
     }
 
     private SecretKey generateKey(String secret) {
-        log.debug("secret Key = {}", secret);
         byte[] keyBytes = secret.getBytes(StandardCharsets.UTF_8);
         return Keys.hmacShaKeyFor(keyBytes);
     }
