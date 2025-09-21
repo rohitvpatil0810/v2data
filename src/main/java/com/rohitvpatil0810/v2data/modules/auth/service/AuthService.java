@@ -1,9 +1,12 @@
 package com.rohitvpatil0810.v2data.modules.auth.service;
 
+import com.rohitvpatil0810.v2data.common.api.exceptions.BadTokenException;
+import com.rohitvpatil0810.v2data.common.api.exceptions.TokenExpiredException;
 import com.rohitvpatil0810.v2data.common.security.JwtUtil;
 import com.rohitvpatil0810.v2data.common.security.TokenHasher;
 import com.rohitvpatil0810.v2data.modules.auth.dto.LoginRequest;
 import com.rohitvpatil0810.v2data.modules.auth.dto.LoginResponse;
+import com.rohitvpatil0810.v2data.modules.auth.dto.RefreshTokenRequest;
 import com.rohitvpatil0810.v2data.modules.auth.dto.RegistrationRequest;
 import com.rohitvpatil0810.v2data.modules.auth.entity.RefreshToken;
 import com.rohitvpatil0810.v2data.modules.auth.event.UserRegisteredEvent;
@@ -20,6 +23,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.NoSuchElementException;
 
 @Slf4j
 @Service
@@ -79,4 +84,35 @@ public class AuthService {
                 .refreshToken(refreshToken)
                 .build();
     }
+
+    public LoginResponse refreshToken(RefreshTokenRequest refreshTokenRequest) throws TokenExpiredException, BadTokenException {
+        try {
+            jwtUtil.verifyRefreshToken(refreshTokenRequest.getRefreshToken());
+
+            String hashedRefreshToken = TokenHasher.hashToken(refreshTokenRequest.getRefreshToken());
+
+            RefreshToken refreshToken = refreshTokenRepository.findByHashedRefreshToken(hashedRefreshToken).orElseThrow();
+
+            User user = refreshToken.getUser();
+
+            String newRefreshToken = jwtUtil.generateRefreshToken(user);
+            String newAccessToken = jwtUtil.generateAccessToken(user);
+
+            RefreshToken newRefreshTokenRecord = RefreshToken.builder()
+                    .hashedRefreshToken(TokenHasher.hashToken(newRefreshToken))
+                    .user(user)
+                    .build();
+
+            refreshTokenRepository.delete(refreshToken);
+            refreshTokenRepository.save(newRefreshTokenRecord);
+
+            return LoginResponse.builder()
+                    .accessToken(newAccessToken)
+                    .refreshToken(newRefreshToken)
+                    .build();
+        } catch (NoSuchElementException e) {
+            throw new TokenExpiredException("Refresh token is no longer valid");
+        }
+    }
+
 }

@@ -1,10 +1,13 @@
 package com.rohitvpatil0810.v2data.modules.auth.controller;
 
 import com.rohitvpatil0810.v2data.common.api.exceptions.BadRequestException;
+import com.rohitvpatil0810.v2data.common.api.exceptions.BadTokenException;
+import com.rohitvpatil0810.v2data.common.api.exceptions.TokenExpiredException;
 import com.rohitvpatil0810.v2data.common.api.responses.ApiResponse;
 import com.rohitvpatil0810.v2data.common.api.responses.SuccessResponse;
 import com.rohitvpatil0810.v2data.modules.auth.dto.LoginRequest;
 import com.rohitvpatil0810.v2data.modules.auth.dto.LoginResponse;
+import com.rohitvpatil0810.v2data.modules.auth.dto.RefreshTokenRequest;
 import com.rohitvpatil0810.v2data.modules.auth.dto.RegistrationRequest;
 import com.rohitvpatil0810.v2data.modules.auth.service.AuthService;
 import com.rohitvpatil0810.v2data.modules.auth.service.EmailVerificationService;
@@ -42,5 +45,12 @@ public class AuthController {
         LoginResponse loginResponse = authService.login(loginRequest);
 
         return new SuccessResponse<LoginResponse>("login successful", loginResponse);
+    }
+
+    @PostMapping("/refresh-token")
+    ApiResponse<LoginResponse> refreshToken(@RequestBody @Valid RefreshTokenRequest refreshTokenRequest) throws TokenExpiredException, BadTokenException {
+        LoginResponse loginResponse = authService.refreshToken(refreshTokenRequest);
+
+        return new SuccessResponse<>("Tokens Refreshed Successfully", loginResponse);
     }
 }
