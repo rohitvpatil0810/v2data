@@ -22,8 +22,7 @@ import java.util.Date;
 public class JwtUtil {
 
     private final long accessTokenValidity = 15 * 60; // 15 min
-    //    private final long refreshTokenValidity = 7 * 24 * 60 * 60; // 7 days
-    private final long refreshTokenValidity = 30; // 7 days
+    private final long refreshTokenValidity = 7 * 24 * 60 * 60; // 7 days
 
     @Value("${jwt.secret.access}")
     private String accessTokenSecret;
