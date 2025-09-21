@@ -22,7 +22,7 @@ public class RefreshToken {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column
+    @Column(unique = true)
     private String hashedRefreshToken;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)

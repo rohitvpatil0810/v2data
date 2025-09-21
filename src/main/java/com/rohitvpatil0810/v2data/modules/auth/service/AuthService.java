@@ -85,6 +85,7 @@ public class AuthService {
                 .build();
     }
 
+    @Transactional
     public LoginResponse refreshToken(RefreshTokenRequest refreshTokenRequest) throws TokenExpiredException, BadTokenException {
         try {
             jwtUtil.verifyRefreshToken(refreshTokenRequest.getRefreshToken());
@@ -113,6 +114,13 @@ public class AuthService {
         } catch (NoSuchElementException e) {
             throw new TokenExpiredException("Refresh token is no longer valid");
         }
+    }
+
+    @Transactional
+    public void logout(RefreshTokenRequest refreshTokenRequest) {
+        String hashedRefreshToken = TokenHasher.hashToken(refreshTokenRequest.getRefreshToken());
+
+        refreshTokenRepository.deleteByHashedRefreshToken(hashedRefreshToken);
     }
 
 }
