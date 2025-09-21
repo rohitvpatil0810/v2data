@@ -1,6 +1,7 @@
 package com.rohitvpatil0810.v2data.modules.auth.service;
 
 import com.rohitvpatil0810.v2data.common.api.exceptions.BadTokenException;
+import com.rohitvpatil0810.v2data.common.api.exceptions.ForbiddenException;
 import com.rohitvpatil0810.v2data.common.api.exceptions.TokenExpiredException;
 import com.rohitvpatil0810.v2data.common.security.JwtUtil;
 import com.rohitvpatil0810.v2data.common.security.TokenHasher;
@@ -86,7 +87,7 @@ public class AuthService {
     }
 
     @Transactional
-    public LoginResponse refreshToken(RefreshTokenRequest refreshTokenRequest) throws TokenExpiredException, BadTokenException {
+    public LoginResponse refreshToken(RefreshTokenRequest refreshTokenRequest) throws TokenExpiredException, BadTokenException, ForbiddenException {
         try {
             jwtUtil.verifyRefreshToken(refreshTokenRequest.getRefreshToken());
 
@@ -95,6 +96,10 @@ public class AuthService {
             RefreshToken refreshToken = refreshTokenRepository.findByHashedRefreshToken(hashedRefreshToken).orElseThrow();
 
             User user = refreshToken.getUser();
+
+            if (!user.isEnabled()) {
+                throw new ForbiddenException("User account is not active");
+            }
 
             String newRefreshToken = jwtUtil.generateRefreshToken(user);
             String newAccessToken = jwtUtil.generateAccessToken(user);

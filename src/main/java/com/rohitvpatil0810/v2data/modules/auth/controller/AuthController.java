@@ -2,6 +2,7 @@ package com.rohitvpatil0810.v2data.modules.auth.controller;
 
 import com.rohitvpatil0810.v2data.common.api.exceptions.BadRequestException;
 import com.rohitvpatil0810.v2data.common.api.exceptions.BadTokenException;
+import com.rohitvpatil0810.v2data.common.api.exceptions.ForbiddenException;
 import com.rohitvpatil0810.v2data.common.api.exceptions.TokenExpiredException;
 import com.rohitvpatil0810.v2data.common.api.responses.ApiResponse;
 import com.rohitvpatil0810.v2data.common.api.responses.SuccessResponse;
@@ -48,7 +49,7 @@ public class AuthController {
     }
 
     @PostMapping("/refresh-token")
-    ApiResponse<LoginResponse> refreshToken(@RequestBody @Valid RefreshTokenRequest refreshTokenRequest) throws TokenExpiredException, BadTokenException {
+    ApiResponse<LoginResponse> refreshToken(@RequestBody @Valid RefreshTokenRequest refreshTokenRequest) throws TokenExpiredException, BadTokenException, ForbiddenException {
         LoginResponse loginResponse = authService.refreshToken(refreshTokenRequest);
 
         return new SuccessResponse<>("Tokens Refreshed Successfully", loginResponse);
