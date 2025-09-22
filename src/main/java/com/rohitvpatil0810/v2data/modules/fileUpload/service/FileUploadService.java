@@ -5,7 +5,10 @@ import com.rohitvpatil0810.v2data.modules.fileUpload.dto.FileUploadResponse;
 import com.rohitvpatil0810.v2data.modules.fileUpload.entity.StoredFile;
 import com.rohitvpatil0810.v2data.modules.fileUpload.mapper.StoredFileMapper;
 import com.rohitvpatil0810.v2data.modules.fileUpload.repository.StoredFileRepository;
+import com.rohitvpatil0810.v2data.modules.users.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -27,6 +30,10 @@ public class FileUploadService {
     private StoredFileMapper storedFileMapper;
 
     public FileUploadResponse uploadFile(MultipartFile uploadFile) throws IOException {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        User user = (User) authentication.getPrincipal();
+        
         File file = null;
         try {
             String uploadDir = System.getProperty("user.dir") + "/uploads/";
@@ -54,6 +61,7 @@ public class FileUploadService {
             StoredFile fileRecord = StoredFile.builder()
                     .originalFilename(uploadFile.getOriginalFilename())
                     .storageKey(cleanFileName)
+                    .user(user)
                     .build();
 
             storedFileRepository.save(fileRecord);
