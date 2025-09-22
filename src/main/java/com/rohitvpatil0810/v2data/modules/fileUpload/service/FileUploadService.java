@@ -1,6 +1,8 @@
 package com.rohitvpatil0810.v2data.modules.fileUpload.service;
 
+import com.rohitvpatil0810.v2data.common.api.exceptions.NotFoundException;
 import com.rohitvpatil0810.v2data.modules.cloudflareR2.CloudflareR2Client;
+import com.rohitvpatil0810.v2data.modules.fileUpload.dto.FileSignedUrlResponse;
 import com.rohitvpatil0810.v2data.modules.fileUpload.dto.FileUploadResponse;
 import com.rohitvpatil0810.v2data.modules.fileUpload.entity.StoredFile;
 import com.rohitvpatil0810.v2data.modules.fileUpload.mapper.StoredFileMapper;
@@ -33,7 +35,7 @@ public class FileUploadService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         User user = (User) authentication.getPrincipal();
-        
+
         File file = null;
         try {
             String uploadDir = System.getProperty("user.dir") + "/uploads/";
@@ -74,5 +76,23 @@ public class FileUploadService {
         } finally {
             file.delete();
         }
+    }
+
+    public FileSignedUrlResponse getSignedUrl(Long fileId) throws NotFoundException {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        StoredFile storedFile = storedFileRepository.findById(fileId).orElseThrow(() -> new NotFoundException("File not found"));
+
+        if (!storedFile.getUser().getId().equals(user.getId())) {
+            throw new NotFoundException("File not found");
+        }
+
+        String signedUrl = cloudflareR2Client.generateSignedUrl("v2data", storedFile.getStorageKey());
+
+        FileSignedUrlResponse fileSignedUrlResponse = storedFileMapper.toFileSignedUrlResponse(storedFile);
+
+        fileSignedUrlResponse.setSignedURL(signedUrl);
+
+        return fileSignedUrlResponse;
     }
 }
