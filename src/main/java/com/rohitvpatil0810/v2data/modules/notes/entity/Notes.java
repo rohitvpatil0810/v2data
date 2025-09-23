@@ -1,17 +1,22 @@
-package com.rohitvpatil0810.v2data.modules.interaction.entity;
+package com.rohitvpatil0810.v2data.modules.notes.entity;
 
 import com.rohitvpatil0810.v2data.modules.fileUpload.entity.StoredFile;
+import com.rohitvpatil0810.v2data.modules.notes.enums.NotesStatus;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.Instant;
 
 @Entity
 @Data
 @Builder
-@Table(name = "interactions")
-public class Interaction {
+@AllArgsConstructor
+@NoArgsConstructor
+@Table(name = "notes")
+public class Notes {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,12 +29,19 @@ public class Interaction {
     @Column(nullable = true)
     private String notes;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String transcription;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String generatedNotes;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private NotesStatus notesStatus;
 
     @Column(insertable = false, updatable = false)
     private Instant createdAt;
+
+    @Column(insertable = false, updatable = true)
+    private Instant updatedAt;
 }
