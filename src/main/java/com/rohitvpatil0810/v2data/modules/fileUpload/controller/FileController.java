@@ -33,4 +33,11 @@ public class FileController {
 
         return new SuccessResponse<>("Signed Url generated successfully", fileSignedUrlResponse);
     }
+
+    @DeleteMapping("/{id}")
+    public ApiResponse deleteFile(@PathVariable("id") Long id) throws NotFoundException {
+        fileUploadService.deleteFile(id);
+
+        return new SuccessResponse("File deleted successfully");
+    }
 }

@@ -79,13 +79,7 @@ public class FileUploadService {
     }
 
     public FileSignedUrlResponse getSignedUrl(Long fileId) throws NotFoundException {
-        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
-        StoredFile storedFile = storedFileRepository.findById(fileId).orElseThrow(() -> new NotFoundException("File not found"));
-
-        if (!storedFile.getUser().getId().equals(user.getId())) {
-            throw new NotFoundException("File not found");
-        }
+        StoredFile storedFile = getFileByFileId(fileId);
 
         String signedUrl = cloudflareR2Client.generateSignedUrl("v2data", storedFile.getStorageKey());
 
@@ -94,5 +88,25 @@ public class FileUploadService {
         fileSignedUrlResponse.setSignedURL(signedUrl);
 
         return fileSignedUrlResponse;
+    }
+
+    public void deleteFile(Long fileId) throws NotFoundException {
+        StoredFile file = getFileByFileId(fileId);
+
+        cloudflareR2Client.deleteFile("v2data", file.getStorageKey());
+
+        storedFileRepository.delete(file);
+    }
+
+    private StoredFile getFileByFileId(Long fileId) throws NotFoundException {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        StoredFile storedFile = storedFileRepository.findById(fileId).orElseThrow(() -> new NotFoundException("File not found"));
+
+        if (!storedFile.getUser().getId().equals(user.getId())) {
+            throw new NotFoundException("File not found");
+        }
+
+        return storedFile;
     }
 }

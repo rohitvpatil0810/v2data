@@ -1,5 +1,6 @@
 package com.rohitvpatil0810.v2data.modules.cloudflareR2;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
@@ -8,6 +9,7 @@ import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.S3Configuration;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectResponse;
@@ -22,6 +24,7 @@ import java.net.URL;
 import java.time.Duration;
 
 @Component
+@Slf4j
 public class CloudflareR2Client {
     private final S3Client s3Client;
     private final S3Presigner presigner;
@@ -109,5 +112,16 @@ public class CloudflareR2Client {
         URL presignedURL = presigner.presignGetObject(presignRequest).url();
 
         return presignedURL.toString();
+    }
+
+    public void deleteFile(String bucketName, String key) {
+        DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()
+                .bucket(bucketName)
+                .key(key)
+                .build();
+
+        this.s3Client.deleteObject(deleteObjectRequest);
+
+        log.debug("File deleted - {} - {}", bucketName, key);
     }
 }
