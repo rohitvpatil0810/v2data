@@ -6,11 +6,13 @@ import com.rohitvpatil0810.v2data.modules.fileUpload.entity.StoredFile;
 import com.rohitvpatil0810.v2data.modules.fileUpload.service.FileUploadService;
 import com.rohitvpatil0810.v2data.modules.notes.dto.NotesRequest;
 import com.rohitvpatil0810.v2data.modules.notes.dto.NotesRequestResponse;
+import com.rohitvpatil0810.v2data.modules.notes.dto.NotesWithFileDTO;
 import com.rohitvpatil0810.v2data.modules.notes.entity.Notes;
 import com.rohitvpatil0810.v2data.modules.notes.enums.NotesStatus;
 import com.rohitvpatil0810.v2data.modules.notes.event.NotesRequestedEvent;
 import com.rohitvpatil0810.v2data.modules.notes.mapper.NotesMapper;
 import com.rohitvpatil0810.v2data.modules.notes.repository.NotesRepository;
+import com.rohitvpatil0810.v2data.modules.users.entity.User;
 import com.rohitvpatil0810.v2data.modules.v2DataTranscriber.dto.V2DataTranscriberResponseBody;
 import com.rohitvpatil0810.v2data.modules.v2DataTranscriber.service.V2DataTranscriber;
 import jakarta.persistence.EntityManager;
@@ -18,6 +20,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,6 +43,7 @@ public class NotesService {
     @Transactional
     public NotesRequestResponse queueNotesRequest(NotesRequest notesRequest) throws NotFoundException, BadRequestException {
         try {
+            // This will throw File not found exception if the fileId is not associated with authenticated user
             String fileUrl = fileUploadService.getSignedUrl(notesRequest.getFileId()).getSignedURL();
 
             Notes notes = Notes.builder()
@@ -78,4 +84,10 @@ public class NotesService {
             notesRepository.save(notes);
         }
     }
+
+    public Page<NotesWithFileDTO> getNotesByUser(Pageable pageable) {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return notesRepository.findNotesByUserId(user.getId(), pageable);
+    }
+
 }
