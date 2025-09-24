@@ -12,13 +12,16 @@ import com.rohitvpatil0810.v2data.modules.notes.mapper.NotesMapper;
 import com.rohitvpatil0810.v2data.modules.notes.repository.NotesRepository;
 import com.rohitvpatil0810.v2data.modules.v2DataTranscriber.dto.V2DataTranscriberResponseBody;
 import com.rohitvpatil0810.v2data.modules.v2DataTranscriber.service.V2DataTranscriber;
-import jakarta.transaction.Transactional;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class NotesService {
@@ -28,6 +31,7 @@ public class NotesService {
     private final NotesRepository notesRepository;
     private final NotesMapper notesMapper;
     private final ApplicationEventPublisher eventPublisher;
+    private final EntityManager entityManager;
 
     @Transactional
     public NotesRequestResponse queueNotesRequest(NotesRequest notesRequest) throws NotFoundException {
@@ -40,12 +44,10 @@ public class NotesService {
                 .build();
 
         Notes savedNotes = notesRepository.save(notes);
-
+        entityManager.refresh(savedNotes);
         eventPublisher.publishEvent(new NotesRequestedEvent(savedNotes.getId(), notesRequest.getFileId(), fileUrl));
 
-        NotesRequestResponse notesRequestResponse = notesMapper.toNotesRequestResponse(notes);
-        notesRequestResponse.setFileId(notesRequest.getFileId());
-        return notesRequestResponse;
+        return notesMapper.toNotesRequestResponse(savedNotes);
     }
 
     public void generateNotes(NotesRequestedEvent notesRequestedEvent) throws NotFoundException {
@@ -69,7 +71,5 @@ public class NotesService {
             notes.setNotesStatus(NotesStatus.FAILED);
             notesRepository.save(notes);
         }
-
-
     }
 }
