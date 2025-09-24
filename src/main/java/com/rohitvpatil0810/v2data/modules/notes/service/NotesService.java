@@ -1,5 +1,6 @@
 package com.rohitvpatil0810.v2data.modules.notes.service;
 
+import com.rohitvpatil0810.v2data.common.api.exceptions.BadRequestException;
 import com.rohitvpatil0810.v2data.common.api.exceptions.NotFoundException;
 import com.rohitvpatil0810.v2data.modules.fileUpload.entity.StoredFile;
 import com.rohitvpatil0810.v2data.modules.fileUpload.service.FileUploadService;
@@ -16,6 +17,7 @@ import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,20 +36,24 @@ public class NotesService {
     private final EntityManager entityManager;
 
     @Transactional
-    public NotesRequestResponse queueNotesRequest(NotesRequest notesRequest) throws NotFoundException {
-        String fileUrl = fileUploadService.getSignedUrl(notesRequest.getFileId()).getSignedURL();
+    public NotesRequestResponse queueNotesRequest(NotesRequest notesRequest) throws NotFoundException, BadRequestException {
+        try {
+            String fileUrl = fileUploadService.getSignedUrl(notesRequest.getFileId()).getSignedURL();
 
-        Notes notes = Notes.builder()
-                .file(StoredFile.builder().id(notesRequest.getFileId()).build())
-                .notesStatus(NotesStatus.IN_QUEUE)
-                .notes(notesRequest.getNotes())
-                .build();
+            Notes notes = Notes.builder()
+                    .file(StoredFile.builder().id(notesRequest.getFileId()).build())
+                    .notesStatus(NotesStatus.IN_QUEUE)
+                    .notes(notesRequest.getNotes())
+                    .build();
 
-        Notes savedNotes = notesRepository.save(notes);
-        entityManager.refresh(savedNotes);
-        eventPublisher.publishEvent(new NotesRequestedEvent(savedNotes.getId(), notesRequest.getFileId(), fileUrl));
+            Notes savedNotes = notesRepository.save(notes);
+            entityManager.refresh(savedNotes);
+            eventPublisher.publishEvent(new NotesRequestedEvent(savedNotes.getId(), notesRequest.getFileId(), fileUrl));
 
-        return notesMapper.toNotesRequestResponse(savedNotes);
+            return notesMapper.toNotesRequestResponse(savedNotes);
+        } catch (DataIntegrityViolationException ex) {
+            throw new RuntimeException(new BadRequestException("File already being processed."));
+        }
     }
 
     public void generateNotes(NotesRequestedEvent notesRequestedEvent) throws NotFoundException {

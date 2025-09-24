@@ -1,5 +1,6 @@
 package com.rohitvpatil0810.v2data.modules.notes.controller;
 
+import com.rohitvpatil0810.v2data.common.api.exceptions.BadRequestException;
 import com.rohitvpatil0810.v2data.common.api.exceptions.NotFoundException;
 import com.rohitvpatil0810.v2data.common.api.responses.ApiResponse;
 import com.rohitvpatil0810.v2data.common.api.responses.SuccessResponse;
@@ -23,7 +24,7 @@ public class NotesController {
     NotesService notesService;
 
     @PostMapping
-    ApiResponse<NotesRequestResponse> echoMessage(@RequestBody @Valid NotesRequest notesRequest) throws NotFoundException {
+    ApiResponse<NotesRequestResponse> echoMessage(@RequestBody @Valid NotesRequest notesRequest) throws NotFoundException, BadRequestException {
 
         NotesRequestResponse notesRequestResponse = notesService.queueNotesRequest(notesRequest);
 
