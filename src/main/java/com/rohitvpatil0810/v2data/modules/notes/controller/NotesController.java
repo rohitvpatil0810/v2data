@@ -43,4 +43,11 @@ public class NotesController {
     ) {
         return notesService.getNotesByUser(pageable);
     }
+
+    @GetMapping("/status/{id}")
+    public ApiResponse<NotesRequestResponse> getNotesRequestStatus(@PathVariable("id") Long notesId) throws NotFoundException {
+        return new SuccessResponse<>("Status of Notes request fetched.", notesService.getNotesRequestStatus(notesId));
+    }
+
+
 }

@@ -90,4 +90,16 @@ public class NotesService {
         return notesRepository.findNotesByUserId(user.getId(), pageable);
     }
 
+    public NotesRequestResponse getNotesRequestStatus(Long notesId) throws NotFoundException {
+        Notes notes = notesRepository.findById(notesId).orElseThrow(
+                () -> new NotFoundException("Notes request note found")
+        );
+
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (!user.getId().equals(notes.getFile().getUser().getId())) {
+            throw new NotFoundException("Notes request not found");
+        }
+
+        return notesMapper.toNotesRequestResponse(notes);
+    }
 }
