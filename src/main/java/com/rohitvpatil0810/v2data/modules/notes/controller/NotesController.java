@@ -49,5 +49,8 @@ public class NotesController {
         return new SuccessResponse<>("Status of Notes request fetched.", notesService.getNotesRequestStatus(notesId));
     }
 
-
+    @GetMapping("/{id}")
+    public ApiResponse<NotesWithFileDTO> getNotesByNoteId(@PathVariable("id") Long notesId) throws NotFoundException {
+        return new SuccessResponse<>("Note fetched successfully", notesService.getNotesByNotesId(notesId));
+    }
 }

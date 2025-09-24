@@ -1,6 +1,7 @@
 package com.rohitvpatil0810.v2data.modules.notes.mapper;
 
 import com.rohitvpatil0810.v2data.modules.notes.dto.NotesRequestResponse;
+import com.rohitvpatil0810.v2data.modules.notes.dto.NotesWithFileDTO;
 import com.rohitvpatil0810.v2data.modules.notes.entity.Notes;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -10,4 +11,8 @@ public interface NotesMapper {
 
     @Mapping(target = "fileId", source = "file.id")
     NotesRequestResponse toNotesRequestResponse(Notes notes);
+
+    @Mapping(target = "fileId", source = "file.id")
+    @Mapping(target = "originalFilename", source = "file.originalFilename")
+    NotesWithFileDTO toNotesWithFileDTO(Notes notes);
 }

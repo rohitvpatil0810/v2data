@@ -91,6 +91,17 @@ public class NotesService {
     }
 
     public NotesRequestResponse getNotesRequestStatus(Long notesId) throws NotFoundException {
+        Notes notes = getNoteByNotesId(notesId);
+        return notesMapper.toNotesRequestResponse(notes);
+    }
+
+    public NotesWithFileDTO getNotesByNotesId(Long notesId) throws NotFoundException {
+        Notes notes = getNoteByNotesId(notesId);
+
+        return notesMapper.toNotesWithFileDTO(notes);
+    }
+
+    private Notes getNoteByNotesId(Long notesId) throws NotFoundException {
         Notes notes = notesRepository.findById(notesId).orElseThrow(
                 () -> new NotFoundException("Notes request note found")
         );
@@ -100,6 +111,6 @@ public class NotesService {
             throw new NotFoundException("Notes request not found");
         }
 
-        return notesMapper.toNotesRequestResponse(notes);
+        return notes;
     }
 }
