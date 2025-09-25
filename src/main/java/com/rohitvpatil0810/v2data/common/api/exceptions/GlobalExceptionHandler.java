@@ -10,6 +10,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.util.HashMap;
@@ -55,6 +56,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MissingServletRequestParameterException.class)
     public ApiResponse handleMissingParamsException(MissingServletRequestParameterException ex) {
         return new BadRequestResponse<>(ex.getMessage());
+    }
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ApiResponse handleMaxUploadSizeExceedException(MaxUploadSizeExceededException ex) {
+        return new BadRequestResponse<>("Max file size allowed is 10MB");
     }
 
     @ExceptionHandler(RuntimeException.class)
