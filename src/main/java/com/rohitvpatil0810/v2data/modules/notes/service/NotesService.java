@@ -108,7 +108,7 @@ public class NotesService {
         Notes notes = getNoteByNotesId(noteId);
         StoredFile storedFile = notes.getFile();
 
-        cloudflareR2Client.deleteFile("v2data", storedFile.getStorageKey());
+        cloudflareR2Client.deleteFile(storedFile.getStorageKey());
 
         // also deletes file associated in notes table
         notesRepository.delete(notes);

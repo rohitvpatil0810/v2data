@@ -56,9 +56,9 @@ public class FileUploadService {
             file = new File(uploadDir + cleanFileName);
             uploadFile.transferTo(file);
 
-            cloudflareR2Client.uploadFile("v2data", file);
+            cloudflareR2Client.uploadFile(file);
 
-            String fileURL = cloudflareR2Client.generateSignedUrl("v2data", file.getName());
+            String fileURL = cloudflareR2Client.generateSignedUrl(file.getName());
 
             StoredFile fileRecord = StoredFile.builder()
                     .originalFilename(uploadFile.getOriginalFilename())
@@ -81,7 +81,7 @@ public class FileUploadService {
     public FileSignedUrlResponse getSignedUrl(Long fileId) throws NotFoundException {
         StoredFile storedFile = getFileByFileId(fileId);
 
-        String signedUrl = cloudflareR2Client.generateSignedUrl("v2data", storedFile.getStorageKey());
+        String signedUrl = cloudflareR2Client.generateSignedUrl(storedFile.getStorageKey());
 
         FileSignedUrlResponse fileSignedUrlResponse = storedFileMapper.toFileSignedUrlResponse(storedFile);
 
@@ -93,7 +93,7 @@ public class FileUploadService {
     public void deleteFile(Long fileId) throws NotFoundException {
         StoredFile file = getFileByFileId(fileId);
 
-        cloudflareR2Client.deleteFile("v2data", file.getStorageKey());
+        cloudflareR2Client.deleteFile(file.getStorageKey());
 
         storedFileRepository.delete(file);
     }

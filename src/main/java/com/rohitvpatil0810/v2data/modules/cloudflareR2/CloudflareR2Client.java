@@ -28,11 +28,12 @@ import java.time.Duration;
 public class CloudflareR2Client {
     private final S3Client s3Client;
     private final S3Presigner presigner;
-
+    private final String bucketName;
 
     public CloudflareR2Client(CloudflareR2ConfigProperties config) {
         this.s3Client = buildS3Client(config);
         this.presigner = buildS3Presigner(config);
+        this.bucketName = config.bucketName();
     }
 
     private static S3Presigner buildS3Presigner(CloudflareR2ConfigProperties config) {
@@ -74,9 +75,9 @@ public class CloudflareR2Client {
                 .build();
     }
 
-    public String uploadFile(String bucketName, File file) throws IOException {
+    public String uploadFile(File file) throws IOException {
         PutObjectRequest putObjectRequest = PutObjectRequest.builder()
-                .bucket(bucketName)
+                .bucket(this.bucketName)
                 .key(file.getName())
                 .build();
 
@@ -98,9 +99,9 @@ public class CloudflareR2Client {
         return response.toString();
     }
 
-    public String generateSignedUrl(String bucketName, String key) {
+    public String generateSignedUrl(String key) {
         GetObjectRequest getObjectRequest = GetObjectRequest.builder()
-                .bucket(bucketName)
+                .bucket(this.bucketName)
                 .key(key)
                 .build();
 
@@ -114,9 +115,9 @@ public class CloudflareR2Client {
         return presignedURL.toString();
     }
 
-    public void deleteFile(String bucketName, String key) {
+    public void deleteFile(String key) {
         DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()
-                .bucket(bucketName)
+                .bucket(this.bucketName)
                 .key(key)
                 .build();
 
