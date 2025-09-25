@@ -53,4 +53,10 @@ public class NotesController {
     public ApiResponse<NotesWithFileDTO> getNotesByNoteId(@PathVariable("id") Long notesId) throws NotFoundException {
         return new SuccessResponse<>("Note fetched successfully", notesService.getNotesByNotesId(notesId));
     }
+
+    @DeleteMapping("/{id}")
+    public ApiResponse deleteNotes(@PathVariable("id") Long notesId) throws NotFoundException {
+        notesService.deleteNotesByNoteId(notesId);
+        return new SuccessResponse("Notes deleted successfully.");
+    }
 }

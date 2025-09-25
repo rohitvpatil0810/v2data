@@ -2,6 +2,7 @@ package com.rohitvpatil0810.v2data.modules.notes.service;
 
 import com.rohitvpatil0810.v2data.common.api.exceptions.BadRequestException;
 import com.rohitvpatil0810.v2data.common.api.exceptions.NotFoundException;
+import com.rohitvpatil0810.v2data.modules.cloudflareR2.CloudflareR2Client;
 import com.rohitvpatil0810.v2data.modules.fileUpload.entity.StoredFile;
 import com.rohitvpatil0810.v2data.modules.fileUpload.service.FileUploadService;
 import com.rohitvpatil0810.v2data.modules.notes.dto.NotesRequest;
@@ -39,6 +40,7 @@ public class NotesService {
     private final NotesMapper notesMapper;
     private final ApplicationEventPublisher eventPublisher;
     private final EntityManager entityManager;
+    private final CloudflareR2Client cloudflareR2Client;
 
     @Transactional
     public NotesRequestResponse queueNotesRequest(NotesRequest notesRequest) throws NotFoundException, BadRequestException {
@@ -101,14 +103,25 @@ public class NotesService {
         return notesMapper.toNotesWithFileDTO(notes);
     }
 
+    public void deleteNotesByNoteId(Long noteId) throws NotFoundException {
+        // throw error if notes does not belong to user logged in
+        Notes notes = getNoteByNotesId(noteId);
+        StoredFile storedFile = notes.getFile();
+
+        cloudflareR2Client.deleteFile("v2data", storedFile.getStorageKey());
+
+        // also deletes file associated in notes table
+        notesRepository.delete(notes);
+    }
+
     private Notes getNoteByNotesId(Long notesId) throws NotFoundException {
         Notes notes = notesRepository.findById(notesId).orElseThrow(
-                () -> new NotFoundException("Notes request note found")
+                () -> new NotFoundException("Notes not found")
         );
 
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (!user.getId().equals(notes.getFile().getUser().getId())) {
-            throw new NotFoundException("Notes request not found");
+            throw new NotFoundException("Notes not found");
         }
 
         return notes;
