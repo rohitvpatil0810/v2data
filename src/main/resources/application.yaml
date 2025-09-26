@@ -1,22 +1,11 @@
 spring:
   application:
     name: v2data
-  servlet:
-    context-path: /api
-    multipart:
-      max-file-size: 10MB
-      max-request-size: 100MB
-    logging:
-      level:
-        root: INFO
-        com.rohitvpatil0810: DEBUG
-      file:
-        path: logs
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/v2data-db
-    username: admin
-    password: password
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/v2data-db}
+    username: ${DB_USERNAME:admin}
+    password: ${DB_PASSWORD:password}
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -35,21 +24,54 @@ spring:
     baseline-on-migrate: true
     locations: classpath:db/migration
 
-  config:
-    import:
-      - classpath:spring-mail-secrets.yaml
-      - optional:cloudflare-secrets.yaml
-      - optional:v2data-transcriber-secrets.yaml
+  servlet:
+    context-path: /api
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 100MB
+
+  mail:
+    host: ${MAIL_HOST:smtp.example.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:dummy@example.com}
+    password: ${MAIL_PASSWORD:dummy-password}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+
+logging:
+  level:
+    root: INFO
+    com.rohitvpatil0810: DEBUG
+  file:
+    path: logs
 
 server:
-  port: 8080
+  port: ${SERVER_PORT:8080}
   servlet:
     context-path: /api
 
 app:
-  base-url: http://localhost:8080/api
+  base-url: ${APP_BASE_URL:http://localhost:8080/api}
 
 jwt:
   secret:
     access: ${ACCESS_TOKEN_SECRET:super-secret-access-ptJTegKdTXPlWaCwHlofVohmegOxOmkk}
     refresh: ${REFRESH_TOKEN_SECRET:super-secret-refresh-uJrEEGcWukfvRJMWmVnnBVxmbAYygOtZ}
+
+cloudflare-r2:
+  account-id: ${CLOUDFLARE_ACCOUNT_ID:dummy}
+  access-key: ${CLOUDFLARE_ACCESS_KEY:dummy}
+  secret-key: ${CLOUDFLARE_SECRET_KEY:dummy}
+  token: ${CLOUDFLARE_TOKEN:dummy}
+  bucket-name: ${CLOUDFLARE_BUCKET:v2data}
+
+v2data-transcriber:
+  api-url: ${TRANSCRIBER_API_URL:https://dummy-url}
+  api-token: ${TRANSCRIBER_API_TOKEN:dummy}

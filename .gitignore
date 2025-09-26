@@ -40,3 +40,6 @@ spring-mail-secrets.yaml
 
 #logs
 /logs/
+
+#.env variables
+.env
