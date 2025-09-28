@@ -10,6 +10,7 @@ structured notes**. It features **authentication and authorization**, secure fil
 ## Core Features
 
 - **Audio Upload** – Upload audio files for transcription.
+- **Event-Driven Asynchronous Processing** – Audio transcription and notes generation are executed asynchronously using Spring Boot’s event-driven architecture, ensuring non-blocking request handling.
 - **Transcription & Notes Generation** – Uses
   the [v2data-transcriber](https://github.com/rohitvpatil0810/v2data-transcriber) project hosted on Cloudflare Workers,
   leveraging AI models:
